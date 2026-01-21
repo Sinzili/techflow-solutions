@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -8,6 +9,7 @@ const Header = () => {
     { href: "#home", label: "Home" },
     { href: "#services", label: "Services" },
     { href: "#portfolio", label: "Portfolio" },
+    { href: "/products", label: "Products", isPage: true },
     { href: "#training", label: "Training" },
     { href: "#contact", label: "Contact" },
   ];
@@ -31,12 +33,21 @@ const Header = () => {
             <ul className="flex gap-6">
               {navLinks.map((link) => (
                 <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className="font-medium hover:text-primary transition-colors"
-                  >
-                    {link.label}
-                  </a>
+                  {link.isPage ? (
+                    <Link
+                      to={link.href}
+                      className="font-medium hover:text-primary transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a
+                      href={link.href}
+                      className="font-medium hover:text-primary transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>
@@ -58,13 +69,23 @@ const Header = () => {
             <ul className="flex flex-col items-center gap-4">
               {navLinks.map((link) => (
                 <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className="font-medium hover:text-primary transition-colors"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {link.label}
-                  </a>
+                  {link.isPage ? (
+                    <Link
+                      to={link.href}
+                      className="font-medium hover:text-primary transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a
+                      href={link.href}
+                      className="font-medium hover:text-primary transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {link.label}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>

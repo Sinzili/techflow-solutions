@@ -14,7 +14,99 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      portfolio_items: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          in_stock: boolean | null
+          name: string
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          in_stock?: boolean | null
+          name: string
+          price: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          in_stock?: boolean | null
+          name?: string
+          price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      service_prices: {
+        Row: {
+          created_at: string
+          id: string
+          price_display: string
+          service_key: string
+          service_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          price_display: string
+          service_key: string
+          service_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          price_display?: string
+          service_key?: string
+          service_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

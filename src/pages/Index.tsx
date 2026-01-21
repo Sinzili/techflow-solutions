@@ -7,6 +7,7 @@ import Portfolio from "@/components/Portfolio";
 import Training from "@/components/Training";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
+import FloatingAdminButton from "@/components/FloatingAdminButton";
 
 const Index = () => {
   return (
@@ -20,6 +21,7 @@ const Index = () => {
       <Training />
       <Contact />
       <Footer />
+      <FloatingAdminButton />
     </div>
   );
 };

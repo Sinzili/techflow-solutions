@@ -1,19 +1,26 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { useServicePrices } from "@/hooks/useServicePrices";
 
-const options = [
-  { id: "repair", label: "Something is broken", price: "R750-1500/hour" },
-  { id: "upgrade", label: "Make it smart", price: "Starting at R15,000" },
-  { id: "security", label: "Add security/AI", price: "Starting at R25,000" },
-  { id: "training", label: "Learn to do it myself", price: "R2,999-4,999/course" },
-  { id: "custom", label: "Custom project", price: "Contact for quote" },
+const defaultOptions = [
+  { id: "repair", label: "Something is broken", service_key: "repair" },
+  { id: "upgrade", label: "Make it smart", service_key: "upgrade" },
+  { id: "security", label: "Add security/AI", service_key: "security" },
+  { id: "training", label: "Learn to do it myself", service_key: "training" },
+  { id: "custom", label: "Custom project", service_key: "custom" },
 ];
 
 const ServiceSelector = () => {
   const [selected, setSelected] = useState<string | null>(null);
+  const { data: prices } = useServicePrices();
 
-  const selectedOption = options.find((opt) => opt.id === selected);
+  const getPrice = (serviceKey: string) => {
+    const price = prices?.find((p) => p.service_key === serviceKey);
+    return price?.price_display || "Contact for quote";
+  };
+
+  const selectedOption = defaultOptions.find((opt) => opt.id === selected);
 
   return (
     <section className="py-16">
@@ -23,7 +30,7 @@ const ServiceSelector = () => {
             What do you need help with today?
           </h3>
           <div className="flex flex-wrap justify-center gap-3">
-            {options.map((option) => (
+            {defaultOptions.map((option) => (
               <button
                 key={option.id}
                 onClick={() => setSelected(option.id)}
@@ -48,7 +55,7 @@ const ServiceSelector = () => {
               >
                 <h4 className="text-xl font-semibold text-foreground mb-2">
                   Estimated Starting Price:{" "}
-                  <span className="text-primary">{selectedOption.price}</span>
+                  <span className="text-primary">{getPrice(selectedOption.service_key)}</span>
                 </h4>
                 <Button asChild size="lg" className="mt-4">
                   <a href="#contact">Get Exact Quote</a>
