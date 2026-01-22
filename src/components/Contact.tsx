@@ -18,12 +18,41 @@ const Contact = () => {
   const [projectForm, setProjectForm] = useState({ company: "", type: "", description: "" });
   const [trainingForm, setTrainingForm] = useState({ name: "", email: "", interest: "" });
 
-  const handleSubmit = (formName: string) => (e: React.FormEvent) => {
+  const handleEmergencySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const issueLabels: Record<string, string> = {
+      appliance: "Appliance (Fridge, Washer, etc.)",
+      tv: "TV/Monitor",
+      electrical: "Electrical Issue",
+      smart: "Smart Device",
+      other: "Other",
+    };
+
+    const subject = encodeURIComponent(`EMERGENCY REPAIR: ${issueLabels[emergencyForm.issue] || emergencyForm.issue}`);
+    const body = encodeURIComponent(
+      `Emergency Repair Request\n\n` +
+      `Name: ${emergencyForm.name}\n` +
+      `Phone: ${emergencyForm.phone}\n` +
+      `Issue Type: ${issueLabels[emergencyForm.issue] || emergencyForm.issue}\n\n` +
+      `Please call me back as soon as possible.`
+    );
+    
+    window.location.href = `mailto:eaglevision.dev30@gmail.com?subject=${subject}&body=${body}`;
+    toast.success("Opening email client. We'll respond to your emergency ASAP!");
+    setEmergencyForm({ name: "", phone: "", issue: "" });
+  };
+
+  const handleProjectSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast.success("Thank you! We will contact you within 24 hours.");
-    if (formName === "emergency") setEmergencyForm({ name: "", phone: "", issue: "" });
-    if (formName === "project") setProjectForm({ company: "", type: "", description: "" });
-    if (formName === "training") setTrainingForm({ name: "", email: "", interest: "" });
+    setProjectForm({ company: "", type: "", description: "" });
+  };
+
+  const handleTrainingSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success("Thank you! We will contact you within 24 hours.");
+    setTrainingForm({ name: "", email: "", interest: "" });
   };
 
   return (
@@ -51,7 +80,7 @@ const Contact = () => {
               <AlertTriangle className="h-5 w-5 text-destructive" />
               Emergency Repair
             </h3>
-            <form onSubmit={handleSubmit("emergency")} className="space-y-4">
+            <form onSubmit={handleEmergencySubmit} className="space-y-4">
               <Input
                 placeholder="Your Name"
                 value={emergencyForm.name}
@@ -98,7 +127,7 @@ const Contact = () => {
               <FolderKanban className="h-5 w-5 text-primary" />
               Project Quote
             </h3>
-            <form onSubmit={handleSubmit("project")} className="space-y-4">
+            <form onSubmit={handleProjectSubmit} className="space-y-4">
               <Input
                 placeholder="Company/Project Name"
                 value={projectForm.company}
@@ -143,7 +172,7 @@ const Contact = () => {
               <GraduationCap className="h-5 w-5 text-secondary" />
               Training Inquiry
             </h3>
-            <form onSubmit={handleSubmit("training")} className="space-y-4">
+            <form onSubmit={handleTrainingSubmit} className="space-y-4">
               <Input
                 placeholder="Your Name"
                 value={trainingForm.name}

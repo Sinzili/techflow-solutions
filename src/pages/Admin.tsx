@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -6,6 +5,7 @@ import { Link } from "react-router-dom";
 import AdminProducts from "@/components/admin/AdminProducts";
 import AdminPortfolio from "@/components/admin/AdminPortfolio";
 import AdminPrices from "@/components/admin/AdminPrices";
+import AdminTraining from "@/components/admin/AdminTraining";
 
 const Admin = () => {
   return (
@@ -29,10 +29,11 @@ const Admin = () => {
 
       <main className="container mx-auto px-5 py-8">
         <Tabs defaultValue="products" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
+          <TabsList className="grid w-full grid-cols-4 mb-8">
             <TabsTrigger value="products">Products</TabsTrigger>
             <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
             <TabsTrigger value="prices">Service Prices</TabsTrigger>
+            <TabsTrigger value="training">Training</TabsTrigger>
           </TabsList>
 
           <TabsContent value="products">
@@ -45,6 +46,10 @@ const Admin = () => {
 
           <TabsContent value="prices">
             <AdminPrices />
+          </TabsContent>
+
+          <TabsContent value="training">
+            <AdminTraining />
           </TabsContent>
         </Tabs>
       </main>
