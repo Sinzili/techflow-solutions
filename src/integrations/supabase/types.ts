@@ -107,6 +107,39 @@ export type Database = {
         }
         Relationships: []
       }
+      training_programs: {
+        Row: {
+          created_at: string
+          duration: string
+          features: string[]
+          id: string
+          price: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          duration: string
+          features?: string[]
+          id?: string
+          price: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          duration?: string
+          features?: string[]
+          id?: string
+          price?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

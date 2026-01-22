@@ -8,6 +8,7 @@ import Training from "@/components/Training";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import FloatingAdminButton from "@/components/FloatingAdminButton";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 
 const Index = () => {
   return (
@@ -22,6 +23,7 @@ const Index = () => {
       <Contact />
       <Footer />
       <FloatingAdminButton />
+      <FloatingWhatsApp />
     </div>
   );
 };

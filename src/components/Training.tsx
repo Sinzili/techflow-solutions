@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
+import { useTrainingPrograms } from "@/hooks/useTrainingPrograms";
 
-const trainingPrograms = [
+const defaultPrograms = [
   {
     title: "Beginner Track",
     price: "R2,999",
@@ -37,6 +38,10 @@ const trainingPrograms = [
 ];
 
 const Training = () => {
+  const { data: dbPrograms, isLoading } = useTrainingPrograms();
+  
+  const programs = dbPrograms && dbPrograms.length > 0 ? dbPrograms : defaultPrograms;
+
   return (
     <section id="training" className="py-20 bg-muted">
       <div className="container mx-auto px-5">
@@ -49,7 +54,7 @@ const Training = () => {
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {trainingPrograms.map((program, index) => (
+          {programs.map((program, index) => (
             <motion.div
               key={program.title}
               initial={{ opacity: 0, y: 20 }}
