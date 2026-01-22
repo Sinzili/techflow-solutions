@@ -37,13 +37,13 @@ const services = [
   },
   {
     icon: LaptopMinimal,
-    title: "Development & Training",
+    title: "Software & Web Development",
     items: [
-      "Arduino Electronics Training",
-      "IoT Development Workshops",
-      "Custom Software Development",
+      "Custom Business Software",
+      "Website Design & Development",
       "Mobile App Development",
-      "Corporate Training Programs",
+      "E-commerce Solutions",
+      "API & System Integration",
     ],
   },
 ];
