@@ -45,13 +45,50 @@ const Contact = () => {
 
   const handleProjectSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Thank you! We will contact you within 24 hours.");
+    
+    const typeLabels: Record<string, string> = {
+      "smart-home": "Smart Home/Business",
+      security: "AI Security System",
+      software: "Custom Software",
+      iot: "IoT Network",
+      training: "Training Program",
+    };
+
+    const subject = encodeURIComponent(`PROJECT QUOTE: ${typeLabels[projectForm.type] || projectForm.type}`);
+    const body = encodeURIComponent(
+      `Project Quote Request\n\n` +
+      `Company/Project Name: ${projectForm.company}\n` +
+      `Project Type: ${typeLabels[projectForm.type] || projectForm.type}\n` +
+      `Description:\n${projectForm.description}\n\n` +
+      `Please provide a detailed quote for this project.`
+    );
+    
+    window.location.href = `mailto:eaglevision.dev30@gmail.com?subject=${subject}&body=${body}`;
+    toast.success("Opening email client. We'll send your quote within 24 hours!");
     setProjectForm({ company: "", type: "", description: "" });
   };
 
   const handleTrainingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Thank you! We will contact you within 24 hours.");
+    
+    const interestLabels: Record<string, string> = {
+      beginner: "Beginner Arduino",
+      advanced: "Advanced IoT",
+      corporate: "Corporate Training",
+      private: "Private Tutoring",
+    };
+
+    const subject = encodeURIComponent(`TRAINING INQUIRY: ${interestLabels[trainingForm.interest] || trainingForm.interest}`);
+    const body = encodeURIComponent(
+      `Training Inquiry\n\n` +
+      `Name: ${trainingForm.name}\n` +
+      `Email: ${trainingForm.email}\n` +
+      `Interest: ${interestLabels[trainingForm.interest] || trainingForm.interest}\n\n` +
+      `Please send me more information about this training program.`
+    );
+    
+    window.location.href = `mailto:eaglevision.dev30@gmail.com?subject=${subject}&body=${body}`;
+    toast.success("Opening email client. We'll respond with course info soon!");
     setTrainingForm({ name: "", email: "", interest: "" });
   };
 
