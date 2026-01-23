@@ -12,14 +12,34 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const Contact = () => {
   const [emergencyForm, setEmergencyForm] = useState({ name: "", phone: "", issue: "" });
-  const [projectForm, setProjectForm] = useState({ company: "", type: "", description: "" });
-  const [trainingForm, setTrainingForm] = useState({ name: "", email: "", interest: "" });
+  const [projectForm, setProjectForm] = useState({ company: "", name: "", email: "", type: "", description: "" });
+  const [trainingForm, setTrainingForm] = useState({ name: "", email: "", phone: "", interest: "" });
+  const [isSubmitting, setIsSubmitting] = useState({ emergency: false, project: false, training: false });
 
-  const handleEmergencySubmit = (e: React.FormEvent) => {
+  const sendEmail = async (formData: any) => {
+    const response = await supabase.functions.invoke("send-contact-email", {
+      body: formData,
+    });
+    
+    if (response.error) {
+      throw new Error(response.error.message);
+    }
+    
+    return response.data;
+  };
+
+  const saveToDatabase = async (formData: any) => {
+    const { error } = await supabase.from("contact_submissions").insert(formData);
+    if (error) throw error;
+  };
+
+  const handleEmergencySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(prev => ({ ...prev, emergency: true }));
     
     const issueLabels: Record<string, string> = {
       appliance: "Appliance (Fridge, Washer, etc.)",
@@ -29,22 +49,36 @@ const Contact = () => {
       other: "Other",
     };
 
-    const subject = encodeURIComponent(`EMERGENCY REPAIR: ${issueLabels[emergencyForm.issue] || emergencyForm.issue}`);
-    const body = encodeURIComponent(
-      `Emergency Repair Request\n\n` +
-      `Name: ${emergencyForm.name}\n` +
-      `Phone: ${emergencyForm.phone}\n` +
-      `Issue Type: ${issueLabels[emergencyForm.issue] || emergencyForm.issue}\n\n` +
-      `Please call me back as soon as possible.`
-    );
-    
-    window.location.href = `mailto:eaglevision.dev30@gmail.com?subject=${subject}&body=${body}`;
-    toast.success("Opening email client. We'll respond to your emergency ASAP!");
-    setEmergencyForm({ name: "", phone: "", issue: "" });
+    try {
+      // Save to database
+      await saveToDatabase({
+        form_type: "emergency",
+        name: emergencyForm.name,
+        phone: emergencyForm.phone,
+        repair_type: issueLabels[emergencyForm.issue] || emergencyForm.issue,
+      });
+
+      // Send email notification
+      await sendEmail({
+        formType: "emergency",
+        name: emergencyForm.name,
+        phone: emergencyForm.phone,
+        repairType: issueLabels[emergencyForm.issue] || emergencyForm.issue,
+      });
+
+      toast.success("Emergency request submitted! We'll call you back ASAP.");
+      setEmergencyForm({ name: "", phone: "", issue: "" });
+    } catch (error: any) {
+      console.error("Error submitting emergency form:", error);
+      toast.error("Failed to submit. Please try again or call us directly.");
+    } finally {
+      setIsSubmitting(prev => ({ ...prev, emergency: false }));
+    }
   };
 
-  const handleProjectSubmit = (e: React.FormEvent) => {
+  const handleProjectSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(prev => ({ ...prev, project: true }));
     
     const typeLabels: Record<string, string> = {
       "smart-home": "Smart Home/Business",
@@ -54,22 +88,40 @@ const Contact = () => {
       training: "Training Program",
     };
 
-    const subject = encodeURIComponent(`PROJECT QUOTE: ${typeLabels[projectForm.type] || projectForm.type}`);
-    const body = encodeURIComponent(
-      `Project Quote Request\n\n` +
-      `Company/Project Name: ${projectForm.company}\n` +
-      `Project Type: ${typeLabels[projectForm.type] || projectForm.type}\n` +
-      `Description:\n${projectForm.description}\n\n` +
-      `Please provide a detailed quote for this project.`
-    );
-    
-    window.location.href = `mailto:eaglevision.dev30@gmail.com?subject=${subject}&body=${body}`;
-    toast.success("Opening email client. We'll send your quote within 24 hours!");
-    setProjectForm({ company: "", type: "", description: "" });
+    try {
+      // Save to database
+      await saveToDatabase({
+        form_type: "project",
+        company: projectForm.company,
+        name: projectForm.name,
+        email: projectForm.email,
+        project_type: typeLabels[projectForm.type] || projectForm.type,
+        description: projectForm.description,
+      });
+
+      // Send email notification
+      await sendEmail({
+        formType: "project",
+        company: projectForm.company,
+        name: projectForm.name,
+        email: projectForm.email,
+        projectType: typeLabels[projectForm.type] || projectForm.type,
+        description: projectForm.description,
+      });
+
+      toast.success("Quote request submitted! We'll respond within 24 hours.");
+      setProjectForm({ company: "", name: "", email: "", type: "", description: "" });
+    } catch (error: any) {
+      console.error("Error submitting project form:", error);
+      toast.error("Failed to submit. Please try again.");
+    } finally {
+      setIsSubmitting(prev => ({ ...prev, project: false }));
+    }
   };
 
-  const handleTrainingSubmit = (e: React.FormEvent) => {
+  const handleTrainingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(prev => ({ ...prev, training: true }));
     
     const interestLabels: Record<string, string> = {
       beginner: "Beginner Arduino",
@@ -78,18 +130,33 @@ const Contact = () => {
       private: "Private Tutoring",
     };
 
-    const subject = encodeURIComponent(`TRAINING INQUIRY: ${interestLabels[trainingForm.interest] || trainingForm.interest}`);
-    const body = encodeURIComponent(
-      `Training Inquiry\n\n` +
-      `Name: ${trainingForm.name}\n` +
-      `Email: ${trainingForm.email}\n` +
-      `Interest: ${interestLabels[trainingForm.interest] || trainingForm.interest}\n\n` +
-      `Please send me more information about this training program.`
-    );
-    
-    window.location.href = `mailto:eaglevision.dev30@gmail.com?subject=${subject}&body=${body}`;
-    toast.success("Opening email client. We'll respond with course info soon!");
-    setTrainingForm({ name: "", email: "", interest: "" });
+    try {
+      // Save to database
+      await saveToDatabase({
+        form_type: "training",
+        name: trainingForm.name,
+        email: trainingForm.email,
+        phone: trainingForm.phone,
+        training_interest: interestLabels[trainingForm.interest] || trainingForm.interest,
+      });
+
+      // Send email notification
+      await sendEmail({
+        formType: "training",
+        name: trainingForm.name,
+        email: trainingForm.email,
+        phone: trainingForm.phone,
+        trainingInterest: interestLabels[trainingForm.interest] || trainingForm.interest,
+      });
+
+      toast.success("Training inquiry submitted! We'll send course info soon.");
+      setTrainingForm({ name: "", email: "", phone: "", interest: "" });
+    } catch (error: any) {
+      console.error("Error submitting training form:", error);
+      toast.error("Failed to submit. Please try again.");
+    } finally {
+      setIsSubmitting(prev => ({ ...prev, training: false }));
+    }
   };
 
   return (
@@ -146,8 +213,8 @@ const Contact = () => {
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
-              <Button type="submit" variant="destructive" className="w-full">
-                Request Emergency Callback
+              <Button type="submit" variant="destructive" className="w-full" disabled={isSubmitting.emergency}>
+                {isSubmitting.emergency ? "Submitting..." : "Request Emergency Callback"}
               </Button>
             </form>
           </motion.div>
@@ -170,6 +237,19 @@ const Contact = () => {
                 value={projectForm.company}
                 onChange={(e) => setProjectForm({ ...projectForm, company: e.target.value })}
               />
+              <Input
+                placeholder="Your Name"
+                value={projectForm.name}
+                onChange={(e) => setProjectForm({ ...projectForm, name: e.target.value })}
+                required
+              />
+              <Input
+                type="email"
+                placeholder="Your Email"
+                value={projectForm.email}
+                onChange={(e) => setProjectForm({ ...projectForm, email: e.target.value })}
+                required
+              />
               <Select
                 value={projectForm.type}
                 onValueChange={(value) => setProjectForm({ ...projectForm, type: value })}
@@ -191,8 +271,8 @@ const Contact = () => {
                 value={projectForm.description}
                 onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })}
               />
-              <Button type="submit" className="w-full">
-                Get Detailed Quote
+              <Button type="submit" className="w-full" disabled={isSubmitting.project}>
+                {isSubmitting.project ? "Submitting..." : "Get Detailed Quote"}
               </Button>
             </form>
           </motion.div>
@@ -214,12 +294,20 @@ const Contact = () => {
                 placeholder="Your Name"
                 value={trainingForm.name}
                 onChange={(e) => setTrainingForm({ ...trainingForm, name: e.target.value })}
+                required
               />
               <Input
                 type="email"
                 placeholder="Email"
                 value={trainingForm.email}
                 onChange={(e) => setTrainingForm({ ...trainingForm, email: e.target.value })}
+                required
+              />
+              <Input
+                type="tel"
+                placeholder="Phone (optional)"
+                value={trainingForm.phone}
+                onChange={(e) => setTrainingForm({ ...trainingForm, phone: e.target.value })}
               />
               <Select
                 value={trainingForm.interest}
@@ -235,8 +323,8 @@ const Contact = () => {
                   <SelectItem value="private">Private Tutoring</SelectItem>
                 </SelectContent>
               </Select>
-              <Button type="submit" variant="secondary" className="w-full">
-                Request Course Info
+              <Button type="submit" variant="secondary" className="w-full" disabled={isSubmitting.training}>
+                {isSubmitting.training ? "Submitting..." : "Request Course Info"}
               </Button>
             </form>
           </motion.div>
