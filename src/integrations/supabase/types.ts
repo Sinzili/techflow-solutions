@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      contact_submissions: {
+        Row: {
+          company: string | null
+          created_at: string
+          description: string | null
+          email: string | null
+          form_type: string
+          id: string
+          name: string | null
+          phone: string | null
+          project_type: string | null
+          repair_type: string | null
+          status: string | null
+          training_interest: string | null
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          form_type: string
+          id?: string
+          name?: string | null
+          phone?: string | null
+          project_type?: string | null
+          repair_type?: string | null
+          status?: string | null
+          training_interest?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          form_type?: string
+          id?: string
+          name?: string | null
+          phone?: string | null
+          project_type?: string | null
+          repair_type?: string | null
+          status?: string | null
+          training_interest?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       portfolio_items: {
         Row: {
           category: string | null
