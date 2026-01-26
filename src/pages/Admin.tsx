@@ -6,6 +6,7 @@ import AdminProducts from "@/components/admin/AdminProducts";
 import AdminPortfolio from "@/components/admin/AdminPortfolio";
 import AdminPrices from "@/components/admin/AdminPrices";
 import AdminTraining from "@/components/admin/AdminTraining";
+import AdminSubmissions from "@/components/admin/AdminSubmissions";
 
 const Admin = () => {
   return (
@@ -28,13 +29,18 @@ const Admin = () => {
       </header>
 
       <main className="container mx-auto px-5 py-8">
-        <Tabs defaultValue="products" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
+        <Tabs defaultValue="submissions" className="w-full">
+          <TabsList className="grid w-full grid-cols-5 mb-8">
+            <TabsTrigger value="submissions">Submissions</TabsTrigger>
             <TabsTrigger value="products">Products</TabsTrigger>
             <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
             <TabsTrigger value="prices">Service Prices</TabsTrigger>
             <TabsTrigger value="training">Training</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="submissions">
+            <AdminSubmissions />
+          </TabsContent>
 
           <TabsContent value="products">
             <AdminProducts />
