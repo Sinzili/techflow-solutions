@@ -14,43 +14,37 @@ import {
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
+const FORMSUBMIT_URL = "https://formsubmit.co/ajax/eaglevision.dev30@gmail.com";
+
 const Contact = () => {
   const [emergencyForm, setEmergencyForm] = useState({ name: "", phone: "", issue: "" });
   const [projectForm, setProjectForm] = useState({ company: "", name: "", email: "", type: "", description: "" });
   const [trainingForm, setTrainingForm] = useState({ name: "", email: "", phone: "", interest: "" });
   const [isSubmitting, setIsSubmitting] = useState({ emergency: false, project: false, training: false });
 
-  const sendEmailViaBrevo = async (formData: any) => {
-    try {
-      const response = await supabase.functions.invoke("send-contact-email", {
-        body: formData,
-      });
-      
-      if (response.error) {
-        console.warn("Brevo email failed, using mailto fallback:", response.error);
-        return false;
-      }
-      return true;
-    } catch (error) {
-      console.warn("Brevo email failed, using mailto fallback:", error);
-      return false;
-    }
-  };
-
-  const openMailtoFallback = (subject: string, body: string) => {
-    const mailtoLink = `mailto:eaglevision.dev30@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.open(mailtoLink, "_blank");
-  };
-
   const saveToDatabase = async (formData: any) => {
     const { error } = await supabase.from("contact_submissions").insert(formData);
-    if (error) throw error;
+    if (error) console.error("DB save error:", error);
+  };
+
+  const sendViaFormSubmit = async (data: Record<string, string>) => {
+    const response = await fetch(FORMSUBMIT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        ...data,
+        _subject: data._subject || "New Contact Form Submission",
+        _captcha: "false",
+      }),
+    });
+    if (!response.ok) throw new Error("FormSubmit failed");
+    return response.json();
   };
 
   const handleEmergencySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(prev => ({ ...prev, emergency: true }));
-    
+
     const issueLabels: Record<string, string> = {
       appliance: "Appliance (Fridge, Washer, etc.)",
       tv: "TV/Monitor",
@@ -60,28 +54,21 @@ const Contact = () => {
     };
 
     try {
-      // Save to database
-      await saveToDatabase({
-        form_type: "emergency",
-        name: emergencyForm.name,
-        phone: emergencyForm.phone,
-        repair_type: issueLabels[emergencyForm.issue] || emergencyForm.issue,
-      });
-
-      // Try Brevo email, fallback to mailto
-      const emailSent = await sendEmailViaBrevo({
-        formType: "emergency",
-        name: emergencyForm.name,
-        phone: emergencyForm.phone,
-        repairType: issueLabels[emergencyForm.issue] || emergencyForm.issue,
-      });
-
-      if (!emailSent) {
-        openMailtoFallback(
-          `🚨 URGENT: Emergency Repair Request from ${emergencyForm.name}`,
-          `Emergency Repair Request\n\nName: ${emergencyForm.name}\nPhone: ${emergencyForm.phone}\nRepair Type: ${issueLabels[emergencyForm.issue] || emergencyForm.issue}`
-        );
-      }
+      await Promise.all([
+        saveToDatabase({
+          form_type: "emergency",
+          name: emergencyForm.name,
+          phone: emergencyForm.phone,
+          repair_type: issueLabels[emergencyForm.issue] || emergencyForm.issue,
+        }),
+        sendViaFormSubmit({
+          _subject: `🚨 URGENT: Emergency Repair Request from ${emergencyForm.name}`,
+          "Form Type": "Emergency Repair",
+          Name: emergencyForm.name,
+          Phone: emergencyForm.phone,
+          "Repair Type": issueLabels[emergencyForm.issue] || emergencyForm.issue,
+        }),
+      ]);
 
       toast.success("Emergency request submitted! We'll call you back ASAP.");
       setEmergencyForm({ name: "", phone: "", issue: "" });
@@ -96,7 +83,7 @@ const Contact = () => {
   const handleProjectSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(prev => ({ ...prev, project: true }));
-    
+
     const typeLabels: Record<string, string> = {
       "smart-home": "Smart Home/Business",
       security: "AI Security System",
@@ -106,32 +93,26 @@ const Contact = () => {
     };
 
     try {
-      // Save to database
-      await saveToDatabase({
-        form_type: "project",
-        company: projectForm.company,
-        name: projectForm.name,
-        email: projectForm.email,
-        project_type: typeLabels[projectForm.type] || projectForm.type,
-        description: projectForm.description,
-      });
-
-      // Try Brevo email, fallback to mailto
-      const emailSent = await sendEmailViaBrevo({
-        formType: "project",
-        company: projectForm.company,
-        name: projectForm.name,
-        email: projectForm.email,
-        projectType: typeLabels[projectForm.type] || projectForm.type,
-        description: projectForm.description,
-      });
-
-      if (!emailSent) {
-        openMailtoFallback(
-          `📋 New Project Quote Request from ${projectForm.company || projectForm.name}`,
-          `Project Quote Request\n\nCompany: ${projectForm.company}\nContact: ${projectForm.name}\nEmail: ${projectForm.email}\nProject Type: ${typeLabels[projectForm.type] || projectForm.type}\nDescription: ${projectForm.description || "Not provided"}`
-        );
-      }
+      await Promise.all([
+        saveToDatabase({
+          form_type: "project",
+          company: projectForm.company,
+          name: projectForm.name,
+          email: projectForm.email,
+          project_type: typeLabels[projectForm.type] || projectForm.type,
+          description: projectForm.description,
+        }),
+        sendViaFormSubmit({
+          _subject: `📋 Project Quote Request from ${projectForm.company || projectForm.name}`,
+          "Form Type": "Project Quote",
+          Company: projectForm.company,
+          Name: projectForm.name,
+          Email: projectForm.email,
+          "Project Type": typeLabels[projectForm.type] || projectForm.type,
+          Description: projectForm.description || "Not provided",
+          _replyto: projectForm.email,
+        }),
+      ]);
 
       toast.success("Quote request submitted! We'll respond within 24 hours.");
       setProjectForm({ company: "", name: "", email: "", type: "", description: "" });
@@ -146,7 +127,7 @@ const Contact = () => {
   const handleTrainingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(prev => ({ ...prev, training: true }));
-    
+
     const interestLabels: Record<string, string> = {
       beginner: "Beginner Arduino",
       advanced: "Advanced IoT",
@@ -155,30 +136,24 @@ const Contact = () => {
     };
 
     try {
-      // Save to database
-      await saveToDatabase({
-        form_type: "training",
-        name: trainingForm.name,
-        email: trainingForm.email,
-        phone: trainingForm.phone,
-        training_interest: interestLabels[trainingForm.interest] || trainingForm.interest,
-      });
-
-      // Try Brevo email, fallback to mailto
-      const emailSent = await sendEmailViaBrevo({
-        formType: "training",
-        name: trainingForm.name,
-        email: trainingForm.email,
-        phone: trainingForm.phone,
-        trainingInterest: interestLabels[trainingForm.interest] || trainingForm.interest,
-      });
-
-      if (!emailSent) {
-        openMailtoFallback(
-          `🎓 Training Inquiry from ${trainingForm.name}`,
-          `Training Inquiry\n\nName: ${trainingForm.name}\nEmail: ${trainingForm.email}\nPhone: ${trainingForm.phone || "Not provided"}\nInterest: ${interestLabels[trainingForm.interest] || trainingForm.interest}`
-        );
-      }
+      await Promise.all([
+        saveToDatabase({
+          form_type: "training",
+          name: trainingForm.name,
+          email: trainingForm.email,
+          phone: trainingForm.phone,
+          training_interest: interestLabels[trainingForm.interest] || trainingForm.interest,
+        }),
+        sendViaFormSubmit({
+          _subject: `🎓 Training Inquiry from ${trainingForm.name}`,
+          "Form Type": "Training Inquiry",
+          Name: trainingForm.name,
+          Email: trainingForm.email,
+          Phone: trainingForm.phone || "Not provided",
+          Interest: interestLabels[trainingForm.interest] || trainingForm.interest,
+          _replyto: trainingForm.email,
+        }),
+      ]);
 
       toast.success("Training inquiry submitted! We'll send course info soon.");
       setTrainingForm({ name: "", email: "", phone: "", interest: "" });
