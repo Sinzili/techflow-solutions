@@ -1,13 +1,18 @@
 import { motion } from "framer-motion";
 import { useProducts } from "@/hooks/useProducts";
+import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, ArrowLeft } from "lucide-react";
+import { ShoppingCart, ArrowLeft, Plus, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { toast } from "sonner";
 
 const Products = () => {
   const { data: products, isLoading } = useProducts();
+  const { items, addItem } = useCart();
+
+  const isInCart = (id: string) => items.some(i => i.product.id === id);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -34,10 +39,7 @@ const Products = () => {
           {isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {[...Array(8)].map((_, i) => (
-                <div
-                  key={i}
-                  className="bg-card rounded-xl h-80 animate-pulse"
-                />
+                <div key={i} className="bg-card rounded-xl h-80 animate-pulse" />
               ))}
             </div>
           ) : products && products.length > 0 ? (
@@ -52,15 +54,9 @@ const Products = () => {
                 >
                   <div className="aspect-square relative overflow-hidden bg-muted">
                     {product.image_url ? (
-                      <img
-                        src={product.image_url}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                        No Image
-                      </div>
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">No Image</div>
                     )}
                     {product.in_stock === false && (
                       <div className="absolute top-2 right-2 bg-destructive text-destructive-foreground px-2 py-1 rounded text-xs font-medium">
@@ -70,35 +66,28 @@ const Products = () => {
                   </div>
                   <div className="p-4">
                     {product.category && (
-                      <span className="text-xs text-muted-foreground uppercase tracking-wide">
-                        {product.category}
-                      </span>
+                      <span className="text-xs text-muted-foreground uppercase tracking-wide">{product.category}</span>
                     )}
-                    <h3 className="font-semibold text-foreground mt-1">
-                      {product.name}
-                    </h3>
+                    <h3 className="font-semibold text-foreground mt-1">{product.name}</h3>
                     {product.description && (
-                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                        {product.description}
-                      </p>
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{product.description}</p>
                     )}
                     <div className="flex items-center justify-between mt-4">
-                      <span className="text-xl font-bold text-primary">
-                        R{product.price.toLocaleString()}
-                      </span>
+                      <span className="text-xl font-bold text-primary">R{product.price.toLocaleString()}</span>
                       <Button
                         size="sm"
                         disabled={product.in_stock === false}
+                        variant={isInCart(product.id) ? "secondary" : "default"}
                         onClick={() => {
-                          const message = `Hi, I'm interested in purchasing: ${product.name} - R${product.price}`;
-                          window.open(
-                            `https://wa.me/27659132527?text=${encodeURIComponent(message)}`,
-                            "_blank"
-                          );
+                          addItem(product);
+                          toast.success(`${product.name} added to cart`);
                         }}
                       >
-                        <ShoppingCart className="h-4 w-4 mr-1" />
-                        Enquire
+                        {isInCart(product.id) ? (
+                          <><Plus className="h-4 w-4 mr-1" />Add More</>
+                        ) : (
+                          <><ShoppingCart className="h-4 w-4 mr-1" />Add to Cart</>
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -107,9 +96,7 @@ const Products = () => {
             </div>
           ) : (
             <div className="text-center py-20">
-              <p className="text-muted-foreground text-lg">
-                No products available yet. Check back soon!
-              </p>
+              <p className="text-muted-foreground text-lg">No products available yet. Check back soon!</p>
             </div>
           )}
         </div>
