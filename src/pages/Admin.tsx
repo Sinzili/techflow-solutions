@@ -7,6 +7,7 @@ import AdminPortfolio from "@/components/admin/AdminPortfolio";
 import AdminPrices from "@/components/admin/AdminPrices";
 import AdminTraining from "@/components/admin/AdminTraining";
 import AdminSubmissions from "@/components/admin/AdminSubmissions";
+import AdminServices from "@/components/admin/AdminServices";
 
 const Admin = () => {
   return (
@@ -30,8 +31,9 @@ const Admin = () => {
 
       <main className="container mx-auto px-5 py-8">
         <Tabs defaultValue="submissions" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-8">
+          <TabsList className="grid w-full grid-cols-6 mb-8">
             <TabsTrigger value="submissions">Submissions</TabsTrigger>
+            <TabsTrigger value="services">Services</TabsTrigger>
             <TabsTrigger value="products">Products</TabsTrigger>
             <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
             <TabsTrigger value="prices">Service Prices</TabsTrigger>
@@ -40,6 +42,10 @@ const Admin = () => {
 
           <TabsContent value="submissions">
             <AdminSubmissions />
+          </TabsContent>
+
+          <TabsContent value="services">
+            <AdminServices />
           </TabsContent>
 
           <TabsContent value="products">
