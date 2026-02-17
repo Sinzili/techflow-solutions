@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import CartDrawer from "./CartDrawer";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -29,38 +30,32 @@ const Header = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:block">
+          <nav className="hidden md:flex items-center gap-6">
             <ul className="flex gap-6">
               {navLinks.map((link) => (
                 <li key={link.href}>
                   {link.isPage ? (
-                    <Link
-                      to={link.href}
-                      className="font-medium hover:text-primary transition-colors"
-                    >
+                    <Link to={link.href} className="font-medium hover:text-primary transition-colors">
                       {link.label}
                     </Link>
                   ) : (
-                    <a
-                      href={link.href}
-                      className="font-medium hover:text-primary transition-colors"
-                    >
+                    <a href={link.href} className="font-medium hover:text-primary transition-colors">
                       {link.label}
                     </a>
                   )}
                 </li>
               ))}
             </ul>
+            <CartDrawer />
           </nav>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+          {/* Mobile: Cart + Menu */}
+          <div className="flex items-center gap-2 md:hidden">
+            <CartDrawer />
+            <button className="p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle menu">
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation */}
@@ -70,19 +65,11 @@ const Header = () => {
               {navLinks.map((link) => (
                 <li key={link.href}>
                   {link.isPage ? (
-                    <Link
-                      to={link.href}
-                      className="font-medium hover:text-primary transition-colors"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
+                    <Link to={link.href} className="font-medium hover:text-primary transition-colors" onClick={() => setMobileMenuOpen(false)}>
                       {link.label}
                     </Link>
                   ) : (
-                    <a
-                      href={link.href}
-                      className="font-medium hover:text-primary transition-colors"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
+                    <a href={link.href} className="font-medium hover:text-primary transition-colors" onClick={() => setMobileMenuOpen(false)}>
                       {link.label}
                     </a>
                   )}
