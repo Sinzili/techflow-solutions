@@ -9,6 +9,7 @@ import Admin from "./pages/Admin.tsx";
 import Products from "./pages/Products.tsx";
 import SoftwareDevelopment from "./pages/SoftwareDevelopment.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import Auth from "./pages/Auth.tsx";
 
 const queryClient = new QueryClient();
 
