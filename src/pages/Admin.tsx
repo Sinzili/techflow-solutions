@@ -53,6 +53,10 @@ const Admin = () => {
               <span className="text-secondary">Vision</span>
               <span className="text-muted-foreground ml-2 text-lg font-normal">Admin</span>
             </h1>
+          <div className="ml-auto">
+            <Button variant="ghost" size="sm" onClick={handleSignOut}>
+              <LogOut className="h-4 w-4 mr-2" /> Sign out
+            </Button>
           </div>
         </div>
       </header>
