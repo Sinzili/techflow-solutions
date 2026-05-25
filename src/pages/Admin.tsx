@@ -1,15 +1,43 @@
+import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowLeft, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import AdminProducts from "@/components/admin/AdminProducts";
 import AdminPortfolio from "@/components/admin/AdminPortfolio";
 import AdminPrices from "@/components/admin/AdminPrices";
 import AdminTraining from "@/components/admin/AdminTraining";
 import AdminSubmissions from "@/components/admin/AdminSubmissions";
 import AdminServices from "@/components/admin/AdminServices";
+import { supabase } from "@/integrations/supabase/client";
 
 const Admin = () => {
+  const navigate = useNavigate();
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) navigate("/auth");
+    });
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) {
+        navigate("/auth");
+      } else {
+        setChecking(false);
+      }
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [navigate]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth");
+  };
+
+  if (checking) {
+    return <div className="min-h-screen flex items-center justify-center bg-background text-muted-foreground">Loading...</div>;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-header text-header-foreground py-4">
